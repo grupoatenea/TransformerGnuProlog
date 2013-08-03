@@ -1,0 +1,4 @@
+Versión 1.0
+Lee archivos splx y los transformar a GNU o SWI prolog
+Verifica si los archivos en SWI prolog son void models
+Soporta el BettyTransformer para arreglar los archivos generados con BeTTy

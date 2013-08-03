@@ -1,0 +1,16 @@
+productline(L):-
+L=[Root,F1,F2,F3,F4,F5,F6,F7,F8,F9],
+fd_domain([Root,F1,F2,F3,F4,F5,F6,F7,F8,F9], 0, 1),
+Root#=1,
+Root#<=>F1,
+F1#<=>F3,
+F1#<=>F4,
+F1#>=F2,
+(1-F2)+(1-F8)#>0,
+(1-F3)+(1-F5)#>0,
+(1-F4)+F7#>0,
+(1-F5)+F8#>0,
+1*F1#=<F5+F6+F7,
+F5+F6+F7#=<F1*3,
+1*F7#=F8+F9,
+fd_labeling(L).

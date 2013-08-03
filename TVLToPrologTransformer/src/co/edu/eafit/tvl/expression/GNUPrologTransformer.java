@@ -11,6 +11,7 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.Expression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExpressionList;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GreaterExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.IfAndOnlyIfExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IncludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IntExpression;
@@ -147,6 +148,11 @@ public abstract class GNUPrologTransformer {
 		if (tvlExpression instanceof QuestExpression){
 			QuestExpression expression = (QuestExpression)tvlExpression;
 			return new GNUPrologQuestExpression(expression);
+		}
+		
+		if (tvlExpression instanceof IfAndOnlyIfExpression){
+			IfAndOnlyIfExpression expression = (IfAndOnlyIfExpression)tvlExpression;
+			return new GNUPrologIfAndOnlyIfExpression(expression);
 		}
 		
 		throw new IllegalArgumentException("TVL expression " + tvlExpression.getClass().getSimpleName() + " is not defined for GNUProlog");

@@ -14,6 +14,7 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.ExcludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExpressionList;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GreaterExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.IfAndOnlyIfExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IncludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IntExpression;
@@ -146,6 +147,15 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		DivideExpression divideExpression = new DivideExpression(expression1, expression2);
 		String gnuExpressionString = GNUPrologTransformer.transform(divideExpression).toArithmeticForm();
 		assertEquals ("Car.hp / 123.5", gnuExpressionString);
+	}
+	
+	@Test
+	public void testIfAndOnlyIfExpression() {
+		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
+		RealExpression expression2 = new RealExpression("123.5");
+		IfAndOnlyIfExpression ifAndOnlyIfExpression = new IfAndOnlyIfExpression(expression1, expression2);
+		String gnuExpressionString = GNUPrologTransformer.transform(ifAndOnlyIfExpression).toArithmeticForm();
+		assertEquals ("Car.hp #<=> 123.5", gnuExpressionString);
 	}
 
 }

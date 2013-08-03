@@ -28,7 +28,7 @@ public class TVLTransformerTest {
 	
 	@Test
 	public void testTVLParser() throws ContradictionException, UnsatisfiableModelException, IOException, TimeoutException {
-		File fTVL = new File("F:/EAFIT Especialización/Aproximaciones Avanzadas/test1EnumBooleanForm.tvl");
+		File fTVL = new File("/TVL/test1EnumBooleanForm.tvl");
 		TVLParser parser = new TVLParser(fTVL);
 		parser.runNormalizedFormParser();
 		FeatureSymbol root = parser.getNormalizedRoot();
@@ -48,7 +48,7 @@ public class TVLTransformerTest {
 	
 	@Test
 	public void testTVLFeaturesTreeLongID() throws Exception {
-		File fTVL = new File("F:/EAFIT Especialización/Aproximaciones Avanzadas/test5LongID.tvl");
+		File fTVL = new File("/TVL/test5LongID.tvl");
 		TVLParser parser = new TVLParser(fTVL);
 		parser.runNormalizedFormParser();
 		parser.printInfo();
@@ -73,7 +73,7 @@ public class TVLTransformerTest {
 	@Test
 	@Ignore("Parsing error : Couldn't repair and continue parse in line 51, column 19")
 	public void testTVLFeaturesTreeRexel_V4() throws FileNotFoundException {
-		File fTVL = new File("F:/EAFIT Especialización/Aproximaciones Avanzadas/rexel_v4.tvl");
+		File fTVL = new File("/TVL/rexel_v4.tvl");
 		TVLParser parser = new TVLParser(fTVL);
 		parser.runNormalizedFormParser();
 		parser.printInfo();
@@ -88,7 +88,7 @@ public class TVLTransformerTest {
 	
 	@Test
 	public void testTVLFeaturesTree() throws FileNotFoundException {
-		File fTVL = new File("F:/EAFIT Especialización/Aproximaciones Avanzadas/test1EnumBooleanForm.tvl");
+		File fTVL = new File("/TVL/test1EnumBooleanForm.tvl");
 		TVLParser parser = new TVLParser(fTVL);
 		parser.runNormalizedFormParser();
 		FeatureSymbol root = parser.getNormalizedRoot();
@@ -107,7 +107,7 @@ public class TVLTransformerTest {
 	
 	@Test
 	public void testTVLFeaturesTreeBus() throws Exception {
-		String tvl = "F:/EAFIT Especialización/Aproximaciones Avanzadas/testBus.tv";
+		String tvl = "/TVL/testBus.tv";
 		System.out.println(tvl);
 		File fTVL = new File(tvl);
 		TVLParser parser = new TVLParser(fTVL);
@@ -131,7 +131,7 @@ public class TVLTransformerTest {
 	
 	@Test
 	public void testTVLFeaturesTreeDeportivos() throws Exception {
-		String tvl = "F:/EAFIT Especialización/Aproximaciones Avanzadas/testDeportivos.tvl";
+		String tvl = "/TVL/testDeportivos.tvl";
 		System.out.println(tvl);
 		File fTVL = new File(tvl);
 		TVLParser parser = new TVLParser(fTVL);

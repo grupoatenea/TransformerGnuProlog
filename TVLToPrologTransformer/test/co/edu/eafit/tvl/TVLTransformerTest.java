@@ -107,7 +107,7 @@ public class TVLTransformerTest {
 	
 	@Test
 	public void testTVLFeaturesTreeBus() throws Exception {
-		String tvl = "/TVL/testBus.tv";
+		String tvl = "/TVL/testBus.tvl";
 		System.out.println(tvl);
 		File fTVL = new File(tvl);
 		TVLParser parser = new TVLParser(fTVL);

@@ -9,22 +9,28 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.EqualsExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExcludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.Expression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExpressionList;
+import be.ac.info.fundp.TVLParser.SyntaxTree.FalseExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GreaterExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IfAndOnlyIfExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.InExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IncludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IntExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LongIDExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LowerExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MaxAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MinAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.NotEqualsExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.NotExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.OrExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.ParenthesesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.PlusExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.QuestExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.RealExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.SumAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.TrueExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ZeroExpression;
 
 public abstract class GNUPrologTransformer {
@@ -153,6 +159,34 @@ public abstract class GNUPrologTransformer {
 		if (tvlExpression instanceof IfAndOnlyIfExpression){
 			IfAndOnlyIfExpression expression = (IfAndOnlyIfExpression)tvlExpression;
 			return new GNUPrologIfAndOnlyIfExpression(expression);
+		}
+		
+		if (tvlExpression instanceof FalseExpression){
+			return new GNUPrologFalseExpression();
+		}
+		
+		if (tvlExpression instanceof TrueExpression){
+			return new GNUPrologTrueExpression();
+		}
+		
+		if (tvlExpression instanceof InExpression){
+			InExpression expression = (InExpression)tvlExpression;
+			return new GNUPrologInExpression(expression);
+		}
+		
+		if (tvlExpression instanceof ParenthesesExpression){
+			ParenthesesExpression expression = (ParenthesesExpression)tvlExpression;
+			return new GNUPrologParenthesesExpression(expression);
+		}
+		
+		if (tvlExpression instanceof MaxAggExpression){
+			MaxAggExpression expression = (MaxAggExpression)tvlExpression;
+			return new GNUPrologMaxAggExpression(expression);
+		}
+		
+		if (tvlExpression instanceof MinAggExpression){
+			MinAggExpression expression = (MinAggExpression)tvlExpression;
+			return new GNUPrologMinAggExpression(expression);
 		}
 		
 		throw new IllegalArgumentException("TVL expression " + tvlExpression.getClass().getSimpleName() + " is not defined for GNUProlog");

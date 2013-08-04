@@ -1,5 +1,9 @@
 package co.edu.eafit.tvl.expression;
 
+import be.ac.info.fundp.TVLParser.SyntaxTree.Expression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.NotExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.ParenthesesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.QuestExpression;
 
 public class GNUPrologQuestExpression implements GNUPrologExpression {
@@ -12,8 +16,10 @@ public class GNUPrologQuestExpression implements GNUPrologExpression {
 
 	@Override
 	public String toArithmeticForm() {
-		String expression1 = "( " + GNUPrologTransformer.transform(expression.getExpression1()).toArithmeticForm() + " ) #==> ( " + GNUPrologTransformer.transform(expression.getExpression2()).toArithmeticForm() + " )";
-		String expression2 = "( #\\ " + GNUPrologTransformer.transform(expression.getExpression1()).toArithmeticForm() + " ) #==> ( " + GNUPrologTransformer.transform(expression.getExpression3()).toArithmeticForm() + " )";
-		return expression1 + ", " + expression2;
+		Expression expression1 = new ImpliesExpression( new ParenthesesExpression( expression.getExpression1() ), new ParenthesesExpression( expression.getExpression2() ) );
+		Expression expression2 = new ImpliesExpression( new ParenthesesExpression( new NotExpression(expression.getExpression1())), new ParenthesesExpression( expression.getExpression3() ) );
+		String nguProglogExpression = GNUPrologTransformer.transform(expression1).toArithmeticForm();
+		String nguProglogExpression2 = GNUPrologTransformer.transform(expression2).toArithmeticForm();;
+		return nguProglogExpression + ", " + nguProglogExpression2;
 	}
 }

@@ -12,20 +12,28 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.DivideExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.EqualsExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExcludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExpressionList;
+import be.ac.info.fundp.TVLParser.SyntaxTree.FalseExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GreaterExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IfAndOnlyIfExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.InExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IncludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IntExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LongIDExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LowerExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MaxAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MinAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.NotExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.OrExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.ParenthesesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.PlusExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.QuestExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.RealExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.SetExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.SumAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.TrueExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ZeroExpression;
 import co.edu.eafit.tvl.expression.GNUPrologTransformer;
 
@@ -127,8 +135,8 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	public void testOrExpression() {
 		LowerExpression lowerExpression = new LowerExpression(new IntExpression("123"), new IntExpression("5"));
 		GreaterExpression greaterExpression = new GreaterExpression(new RealExpression("123.5"), new RealExpression("5.8"));
-		OrExpression andExpression = new OrExpression(lowerExpression, greaterExpression);
-		String gnuExpressionString = GNUPrologTransformer.transform(andExpression).toArithmeticForm();
+		OrExpression orExpression = new OrExpression(lowerExpression, greaterExpression);
+		String gnuExpressionString = GNUPrologTransformer.transform(orExpression).toArithmeticForm();
 		assertEquals ("123 #< 5 #\\/ 123.5 #> 5.8", gnuExpressionString);
 	}
 	
@@ -157,5 +165,135 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		String gnuExpressionString = GNUPrologTransformer.transform(ifAndOnlyIfExpression).toArithmeticForm();
 		assertEquals ("Car.hp #<=> 123.5", gnuExpressionString);
 	}
+	
+	@Test
+	public void testFalseExpression() {
+		FalseExpression falseExpression = new FalseExpression();
+		String gnuExpressionString = GNUPrologTransformer.transform(falseExpression).toArithmeticForm();
+		assertEquals ("0", gnuExpressionString);
+	}
+	
+	@Test
+	public void testTrueExpression() {
+		TrueExpression trueExpression = new TrueExpression();
+		String gnuExpressionString = GNUPrologTransformer.transform(trueExpression).toArithmeticForm();
+		assertEquals ("1", gnuExpressionString);
+	}
+	
+	@Test
+	public void testInExpressionListValues() {
+		IntExpression intExpression1 = new IntExpression("123");
+		IntExpression intExpression2 = new IntExpression("5");
+		RealExpression realExpression = new RealExpression("68.5");
+		ExpressionList expressionList = new ExpressionList(intExpression1, new ExpressionList(intExpression2));
+		SetExpression setExpression = new SetExpression(expressionList, null);
+		InExpression inExpression = new InExpression(realExpression, setExpression);
+		String gnuExpressionString = GNUPrologTransformer.transform(inExpression).toArithmeticForm();
+		assertEquals ("68.5 #= 5; 68.5 #= 123", gnuExpressionString);
+	}
+	
+	@Test
+	public void testInExpressionRange() {
+		RealExpression realExpression = new RealExpression("2.5");
+		SetExpression setExpression = new SetExpression("1", "10", null);
+		InExpression inExpression = new InExpression(realExpression, setExpression);
+		String gnuExpressionString = GNUPrologTransformer.transform(inExpression).toArithmeticForm();
+		assertEquals ("2.5 #>= 1, 2.5 #=< 10", gnuExpressionString);
+	}
 
+	@Test
+	public void testParanthesisxpression() {
+		RealExpression realExpression = new RealExpression("2.5");
+		ParenthesesExpression parenthesesExpression = new ParenthesesExpression(realExpression);
+		String gnuExpressionString = GNUPrologTransformer.transform(parenthesesExpression).toArithmeticForm();
+		assertEquals ("( 2.5 )", gnuExpressionString);
+	}
+	
+	@Test
+	public void testMultipleParanthesisxpression() {
+		LowerExpression lowerExpression = new LowerExpression(new IntExpression("123"), new IntExpression("5"));
+		ParenthesesExpression parenthesesLowerExpression = new ParenthesesExpression(lowerExpression);
+		GreaterExpression greaterExpression = new GreaterExpression(new RealExpression("123.5"), new RealExpression("5.8"));
+		ParenthesesExpression parenthesesGreaterExpression = new ParenthesesExpression(greaterExpression);
+		OrExpression orExpression = new OrExpression(parenthesesLowerExpression, parenthesesGreaterExpression);
+		String gnuExpressionString = GNUPrologTransformer.transform(orExpression).toArithmeticForm();
+		assertEquals ("( 123 #< 5 ) #\\/ ( 123.5 #> 5.8 )", gnuExpressionString);
+	}
+	
+	@Test
+	public void testMaxAggExpression() {
+		IntExpression intExpression1 = new IntExpression("123");
+		IntExpression intExpression2 = new IntExpression("5");
+		IntExpression intExpression3 = new IntExpression("8");
+		ExpressionList expressionList = new ExpressionList(intExpression1, new ExpressionList(intExpression2, new ExpressionList(intExpression3)));
+		MaxAggExpression maxAggExpression = new MaxAggExpression(expressionList);
+		String gnuExpressionString = GNUPrologTransformer.transform(maxAggExpression).toArithmeticForm();
+		assertEquals ("max(max(8, 5), 123)", gnuExpressionString);
+	}
+	
+	@Test
+	public void testTwoExpressionsMaxAggExpression() {
+		IntExpression intExpression1 = new IntExpression("123");
+		IntExpression intExpression2 = new IntExpression("5");
+		ExpressionList expressionList = new ExpressionList(intExpression1, new ExpressionList(intExpression2));
+		MaxAggExpression maxAggExpression = new MaxAggExpression(expressionList);
+		String gnuExpressionString = GNUPrologTransformer.transform(maxAggExpression).toArithmeticForm();
+		assertEquals ("max(5, 123)", gnuExpressionString);
+	}
+	
+	@Test
+	public void testFiveExpressionsMaxAggExpression() {
+		IntExpression intExpression1 = new IntExpression("123");
+		IntExpression intExpression2 = new IntExpression("5");
+		IntExpression intExpression3 = new IntExpression("45");
+		IntExpression intExpression4 = new IntExpression("53");
+		IntExpression intExpression5 = new IntExpression("59");
+		ExpressionList expressionList = 
+				new ExpressionList(intExpression1, 
+						new ExpressionList(intExpression2,
+								new ExpressionList(intExpression3, 
+										new ExpressionList(intExpression4, 
+												new ExpressionList(intExpression5)))));
+		MaxAggExpression maxAggExpression = new MaxAggExpression(expressionList);
+		String gnuExpressionString = GNUPrologTransformer.transform(maxAggExpression).toArithmeticForm();
+		assertEquals ("max(max(max(max(59, 53), 45), 5), 123)", gnuExpressionString);
+	}
+	
+	@Test
+	public void testFiveExpressionsMinAggExpression() {
+		IntExpression intExpression1 = new IntExpression("123");
+		IntExpression intExpression2 = new IntExpression("5");
+		IntExpression intExpression3 = new IntExpression("45");
+		IntExpression intExpression4 = new IntExpression("53");
+		IntExpression intExpression5 = new IntExpression("59");
+		ExpressionList expressionList = 
+				new ExpressionList(intExpression1, 
+						new ExpressionList(intExpression2,
+								new ExpressionList(intExpression3, 
+										new ExpressionList(intExpression4, 
+												new ExpressionList(intExpression5)))));
+		MinAggExpression minAggExpression = new MinAggExpression(expressionList);
+		String gnuExpressionString = GNUPrologTransformer.transform(minAggExpression).toArithmeticForm();
+		assertEquals ("min(min(min(min(59, 53), 45), 5), 123)", gnuExpressionString);
+	}
+	
+	@Test
+	public void testSumAggExpression() {
+		QuestExpression questExpression1 = new QuestExpression(
+				new LongIDExpression("Sports", null),
+				new LongIDExpression("Sports.weight", null),
+				new ZeroExpression());
+		QuestExpression questExpression2 = new QuestExpression(
+				new LongIDExpression("Family", null),
+				new LongIDExpression("Family.weight", null),
+				new ZeroExpression());
+		ExpressionList expressionList = 
+				new ExpressionList(questExpression2, 
+						new ExpressionList(questExpression1));
+		SumAggExpression sumAggExpression = new SumAggExpression(expressionList);
+		EqualsExpression equalsExpression = new EqualsExpression(new LongIDExpression("Car.weight", null), sumAggExpression);
+		String gnuExpressionString = GNUPrologTransformer.transform(equalsExpression).toArithmeticForm();
+		assertEquals ("Car.weight #= ( Sports #==> Sports.weight, ( #\\ Sports ) #==> ( 0 ) ) + ( Family #==> Family.weight, ( #\\ Family ) #==> ( 0 ) )", gnuExpressionString);
+	}
+	
 }

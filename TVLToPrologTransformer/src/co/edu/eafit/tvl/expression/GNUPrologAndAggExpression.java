@@ -16,10 +16,10 @@ public class GNUPrologAndAggExpression implements GNUPrologExpression {
 	@Override
 	public String toArithmeticForm() {
 		Vector<Expression> expressions = andAggExpression.getExpressionList().getExpressions();
-		String list = GNUPrologTransformer.transform(expressions.get(0)).toArithmeticForm();
+		String list = GNUPrologExpressionTransformer.transform(expressions.get(0)).toArithmeticForm();
 		int i = 1;
 		while ( i <= expressions.size()-1) {
-			list = list.concat(",\n" + GNUPrologTransformer.transform(expressions.get(i)).toArithmeticForm());
+			list = list.concat(",\n" + GNUPrologExpressionTransformer.transform(expressions.get(i)).toArithmeticForm());
 			i++;
 		}
 		return list;

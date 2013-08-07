@@ -12,7 +12,7 @@ public class GNUPrologAbsExpression implements GNUPrologExpression {
 
 	@Override
 	public String toArithmeticForm() {
-		return "abs(" + GNUPrologTransformer.transform( absExpresion.getExpression() ).toArithmeticForm() + ")" ;
+		return "abs(" + GNUPrologExpressionTransformer.transform( absExpresion.getExpression() ).toArithmeticForm() + ")" ;
 	}
 
 

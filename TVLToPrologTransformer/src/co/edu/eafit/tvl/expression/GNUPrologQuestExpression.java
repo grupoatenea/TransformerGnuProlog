@@ -18,8 +18,8 @@ public class GNUPrologQuestExpression implements GNUPrologExpression {
 	public String toArithmeticForm() {
 		Expression expression1 = new ImpliesExpression( new ParenthesesExpression( expression.getExpression1() ), new ParenthesesExpression( expression.getExpression2() ) );
 		Expression expression2 = new ImpliesExpression( new ParenthesesExpression( new NotExpression(expression.getExpression1())), new ParenthesesExpression( expression.getExpression3() ) );
-		String nguProglogExpression = GNUPrologTransformer.transform(expression1).toArithmeticForm();
-		String nguProglogExpression2 = GNUPrologTransformer.transform(expression2).toArithmeticForm();;
+		String nguProglogExpression = GNUPrologExpressionTransformer.transform(expression1).toArithmeticForm();
+		String nguProglogExpression2 = GNUPrologExpressionTransformer.transform(expression2).toArithmeticForm();;
 		return nguProglogExpression + ", " + nguProglogExpression2;
 	}
 }

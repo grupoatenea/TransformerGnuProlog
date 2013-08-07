@@ -16,10 +16,10 @@ public class GNUPrologAvgAggExpression implements GNUPrologExpression {
 	@Override
 	public String toArithmeticForm() {
 		Vector<Expression> expressions = avgAggExpression.getExpressionList().getExpressions();
-		String list = "(" + GNUPrologTransformer.transform(expressions.get(0)).toArithmeticForm();
+		String list = "(" + GNUPrologExpressionTransformer.transform(expressions.get(0)).toArithmeticForm();
 		int i = 1;
 		while ( i <= expressions.size()-1) {
-			list = list.concat(" + " + GNUPrologTransformer.transform(expressions.get(i)).toArithmeticForm());
+			list = list.concat(" + " + GNUPrologExpressionTransformer.transform(expressions.get(i)).toArithmeticForm());
 			i++;
 		}
 		return list + ") / " + expressions.size();

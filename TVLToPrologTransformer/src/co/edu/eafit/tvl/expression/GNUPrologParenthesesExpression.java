@@ -12,7 +12,7 @@ public class GNUPrologParenthesesExpression implements GNUPrologExpression {
 
 	@Override
 	public String toArithmeticForm() {
-		return "( " + GNUPrologTransformer.transform(expression.getExpression()).toArithmeticForm() + " )";
+		return "( " + GNUPrologExpressionTransformer.transform(expression.getExpression()).toArithmeticForm() + " )";
 	}
 
 }

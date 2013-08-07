@@ -17,11 +17,15 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
 import be.ac.info.fundp.TVLParser.TVLParser;
+import be.ac.info.fundp.TVLParser.Util.IDGenerator;
 import be.ac.info.fundp.TVLParser.exceptions.UnsatisfiableModelException;
 import be.ac.info.fundp.TVLParser.symbolTables.AttributeSymbol;
 import be.ac.info.fundp.TVLParser.symbolTables.ConstraintSymbol;
 import be.ac.info.fundp.TVLParser.symbolTables.FeatureSymbol;
-import co.edu.eafit.tvl.expression.GNUPrologTransformer;
+import be.ac.info.fundp.TVLParser.symbolTables.Symbol;
+import co.edu.eafit.tvl.expression.GNUPrologExpressionTransformer;
+import co.edu.eafit.tvl.transformation.GNUPrologNamesContainer;
+import co.edu.eafit.tvl.transformation.TVLFeaturesTree;
 
 
 public class TVLTransformerTest {
@@ -31,18 +35,28 @@ public class TVLTransformerTest {
 		File fTVL = new File("/TVL/test1EnumBooleanForm.tvl");
 		TVLParser parser = new TVLParser(fTVL);
 		parser.runNormalizedFormParser();
+		System.out.println(parser.getNormalForm());
 		FeatureSymbol root = parser.getNormalizedRoot();
 		assertEquals("Car", root.getID());
 		assertTrue(root.isRoot());
-		System.out.println("Feature: " + root.getID());
-		Iterator<Map.Entry<String, AttributeSymbol>> it = root.getAttributesSymbols().entrySet().iterator();
-        while (it.hasNext()) {
-        	System.out.println("Attribute: " + it.next().getValue().getID());
-        }
-		Vector<ConstraintSymbol> contraints = root.getConstraintSymbols();
-		for (ConstraintSymbol constraintSymbol : contraints) {
-			System.out.println("Constraint TVL: " + constraintSymbol.getExpression().toString());
-			System.out.println("Constraint GNUProlog: " +  GNUPrologTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
+		TVLFeaturesTree tree = new TVLFeaturesTree(root);
+		List<FeatureSymbol> features = tree.toList();
+		GNUPrologNamesContainer.init(parser.getFeaturesSymbolTable(), features);
+		for (FeatureSymbol featureSymbol : features) {
+			System.out.println("Feature: " + featureSymbol.getID());
+			if (featureSymbol.getAttributesSymbols() != null){
+				Iterator<Map.Entry<String, AttributeSymbol>> it = featureSymbol.getAttributesSymbols().entrySet().iterator();
+		        while (it.hasNext()) {
+		        	System.out.println("Attribute: " + it.next().getValue().getID());
+		        }
+			}
+			Vector<ConstraintSymbol> constraints = featureSymbol.getConstraintSymbols();
+			if ( constraints != null ) {
+				for (ConstraintSymbol constraintSymbol : constraints) {
+					System.out.println("Constraint TVL: " + constraintSymbol.getExpression().toString());
+					System.out.println("Constraint GNUProlog: " +  GNUPrologExpressionTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
+				}
+			}
 		}
 	}
 	
@@ -51,18 +65,38 @@ public class TVLTransformerTest {
 		File fTVL = new File("/TVL/test5LongID.tvl");
 		TVLParser parser = new TVLParser(fTVL);
 		parser.runNormalizedFormParser();
-		parser.printInfo();
-		System.out.println( parser.getNormalForm() );
+//		parser.printInfo();
+		System.out.println(parser.getNormalForm());
 		FeatureSymbol root = parser.getNormalizedRoot();
 		TVLFeaturesTree tree = new TVLFeaturesTree(root);
 		List<FeatureSymbol> features = tree.toList();
+		GNUPrologNamesContainer.init(parser.getFeaturesSymbolTable(), features);
 		System.out.println("--------------------------");
+//		System.out.println(IDGenerator.getInstance().getSymbol(17).getID());
 		for (FeatureSymbol feature : features) {
+			System.out.println(feature.getDIMACS_ID() + " " + feature.getID());
+			Symbol symbol = IDGenerator.getInstance().getSymbol(feature.getDIMACS_ID());
+			if (symbol instanceof FeatureSymbol){
+				System.out.println(symbol.getDIMACS_ID() + " " + ((FeatureSymbol)symbol).getID());
+			}
+//			String id = feature.getFirstParentFeature() == null ? feature.getID() : feature.getFirstParentFeature().getID() + "." + feature.getID();
+//			System.out.println("Feature: " + id);
+			Iterator<Map.Entry<String, AttributeSymbol>> it = feature.getAttributesSymbols().entrySet().iterator();
+	        while (it.hasNext()) {
+	        	AttributeSymbol attribute = it.next().getValue();
+	        	System.out.println(attribute.getDIMACS_ID());
+	        	System.out.println("Attribute: " + attribute.getId());
+				Symbol attributeSymbol = IDGenerator.getInstance().getSymbol(attribute.getDIMACS_ID());
+				if (attributeSymbol instanceof AttributeSymbol){
+					System.out.println(symbol.getDIMACS_ID() + " " + ((AttributeSymbol)attributeSymbol).getID());
+				}
+	        }
 			Vector<ConstraintSymbol> constraints = feature.getConstraintSymbols();
 			if ( constraints != null ) {
 				for (ConstraintSymbol constraintSymbol : constraints) {
+					System.out.println(constraintSymbol.toString());
 					System.out.println("Constraint TVL: " + constraintSymbol.getExpression().toString());
-					System.out.println("Constraint GNUProlog: " +  GNUPrologTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
+					System.out.println("Constraint GNUProlog: " +  GNUPrologExpressionTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
 				}
 			}
 		}
@@ -80,6 +114,7 @@ public class TVLTransformerTest {
 		FeatureSymbol root = parser.getNormalizedRoot();
 		TVLFeaturesTree tree = new TVLFeaturesTree(root);
 		List<FeatureSymbol> features = tree.toList();
+		GNUPrologNamesContainer.init(parser.getFeaturesSymbolTable(), features);
 		for (FeatureSymbol feature : features) {
 			System.out.println(feature.getID() + " " + feature.isOptionnal());
 		}
@@ -90,16 +125,19 @@ public class TVLTransformerTest {
 	public void testTVLFeaturesTree() throws FileNotFoundException {
 		File fTVL = new File("/TVL/test1EnumBooleanForm.tvl");
 		TVLParser parser = new TVLParser(fTVL);
-		parser.runNormalizedFormParser();
+		parser.run();
+		System.out.println(parser.getNormalForm());
 		FeatureSymbol root = parser.getNormalizedRoot();
 		TVLFeaturesTree tree = new TVLFeaturesTree(root);
 		List<FeatureSymbol> features = tree.toList();
+		GNUPrologNamesContainer.init(parser.getFeaturesSymbolTable(), features);
 		for (FeatureSymbol feature : features) {
 			System.out.println(feature.getID() + " " + feature.isOptionnal());
 			Vector<ConstraintSymbol> constraints = feature.getConstraintSymbols();
 			if ( constraints != null ) {
 				for (ConstraintSymbol constraintSymbol : constraints) {
-					System.out.println( GNUPrologTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
+					System.out.println("Constraint TVL: " + constraintSymbol.getExpression().toString());
+					System.out.println("Constraint GNUProlog: " +  GNUPrologExpressionTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
 				}
 			}
 		}
@@ -118,12 +156,13 @@ public class TVLTransformerTest {
 		FeatureSymbol root = parser.getNormalizedRoot();
 		TVLFeaturesTree tree = new TVLFeaturesTree(root);
 		List<FeatureSymbol> features = tree.toList();
+		GNUPrologNamesContainer.init(parser.getFeaturesSymbolTable(), features);
 		for (FeatureSymbol feature : features) {
 			System.out.println(feature.getID() + " " + feature.isOptionnal());
 			Vector<ConstraintSymbol> constraints = feature.getConstraintSymbols();
 			if ( constraints != null ) {
 				for (ConstraintSymbol constraintSymbol : constraints) {
-					System.out.println( GNUPrologTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
+					System.out.println( GNUPrologExpressionTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
 				}
 			}
 		}
@@ -139,12 +178,13 @@ public class TVLTransformerTest {
 		FeatureSymbol root = parser.getNormalizedRoot();
 		TVLFeaturesTree tree = new TVLFeaturesTree(root);
 		List<FeatureSymbol> features = tree.toList();
+		GNUPrologNamesContainer.init(parser.getFeaturesSymbolTable(), features);
 		for (FeatureSymbol feature : features) {
 			System.out.println(feature.getID() + " " + feature.isOptionnal());
 			Vector<ConstraintSymbol> constraints = feature.getConstraintSymbols();
 			if ( constraints != null ) {
 				for (ConstraintSymbol constraintSymbol : constraints) {
-					System.out.println( GNUPrologTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
+					System.out.println( GNUPrologExpressionTransformer.transform( constraintSymbol.getExpression() ).toArithmeticForm() );
 				}
 			}
 		}

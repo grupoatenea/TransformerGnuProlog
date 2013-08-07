@@ -12,8 +12,8 @@ public class GNUPrologPlusExpression implements GNUPrologExpression {
 
 	@Override
 	public String toArithmeticForm() {
-		String sum1 = GNUPrologTransformer.transform(plusExpression.getExpression1()).toArithmeticForm();
-		String sum2 = GNUPrologTransformer.transform(plusExpression.getExpression2()).toArithmeticForm();
+		String sum1 = GNUPrologExpressionTransformer.transform(plusExpression.getExpression1()).toArithmeticForm();
+		String sum2 = GNUPrologExpressionTransformer.transform(plusExpression.getExpression2()).toArithmeticForm();
 		return sum1 + " + " + sum2;
 	}
 

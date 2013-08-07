@@ -12,7 +12,7 @@ public class GNUPrologGreaterOrThanEqualsExpression implements GNUPrologExpressi
 
 	@Override
 	public String toArithmeticForm() {
-		return GNUPrologTransformer.transform( expression.getExpression1() ).toArithmeticForm() + " #>= " + GNUPrologTransformer.transform( expression.getExpression2() ).toArithmeticForm();
+		return GNUPrologExpressionTransformer.transform( expression.getExpression1() ).toArithmeticForm() + " #>= " + GNUPrologExpressionTransformer.transform( expression.getExpression2() ).toArithmeticForm();
 	}
 	
 	

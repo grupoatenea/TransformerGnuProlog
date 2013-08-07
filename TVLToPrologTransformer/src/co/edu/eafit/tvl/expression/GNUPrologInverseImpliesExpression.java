@@ -10,7 +10,7 @@ public class GNUPrologInverseImpliesExpression implements GNUPrologExpression {
 
 	@Override
 	public String toArithmeticForm() {
-		return GNUPrologTransformer.transform(expression.getExpression2()).toArithmeticForm() + " #==> " + GNUPrologTransformer.transform(expression.getExpression1()).toArithmeticForm();
+		return GNUPrologExpressionTransformer.transform(expression.getExpression2()).toArithmeticForm() + " #==> " + GNUPrologExpressionTransformer.transform(expression.getExpression1()).toArithmeticForm();
 	}
 
 }

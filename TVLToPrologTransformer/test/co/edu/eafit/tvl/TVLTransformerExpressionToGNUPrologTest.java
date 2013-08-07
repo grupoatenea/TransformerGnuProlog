@@ -20,12 +20,16 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.InExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IncludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IntExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.InverseImpliesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LongIDExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LowerExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.MaxAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.MinAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MinusExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MulAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.NotExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.OrAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.OrExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ParenthesesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.PlusExpression;
@@ -294,6 +298,54 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		EqualsExpression equalsExpression = new EqualsExpression(new LongIDExpression("Car.weight", null), sumAggExpression);
 		String gnuExpressionString = GNUPrologTransformer.transform(equalsExpression).toArithmeticForm();
 		assertEquals ("Car.weight #= ( Sports #==> Sports.weight, ( #\\ Sports ) #==> ( 0 ) ) + ( Family #==> Family.weight, ( #\\ Family ) #==> ( 0 ) )", gnuExpressionString);
+	}
+	
+	@Test
+	public void testMinusExpression() {
+		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
+		RealExpression expression2 = new RealExpression("123.5");
+		MinusExpression minusExpression = new MinusExpression(expression1, expression2);
+		String gnuExpressionString = GNUPrologTransformer.transform(minusExpression).toArithmeticForm();
+		assertEquals ("Car.hp - 123.5", gnuExpressionString);
+		System.out.println("resultado:"+gnuExpressionString);
+	}
+	
+	@Test
+	public void testMulAggExpression() {
+		
+		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
+		RealExpression expression2 = new RealExpression("123.5");
+		ExpressionList expressionList = new ExpressionList(expression1);
+		expressionList.getExpressions().add(expression2);
+		MulAggExpression mulAggExpression = new MulAggExpression(expressionList);
+		String gnuExpressionString = GNUPrologTransformer.transform(mulAggExpression).toArithmeticForm();
+		//assertEquals ("Car.hp * 123.5", gnuExpressionString);
+		System.out.println("resultado:"+gnuExpressionString);
+	}
+	
+	@Test
+	public void testOrAggExpression() {
+		
+		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
+		RealExpression expression2 = new RealExpression("123.5");
+		RealExpression expression3 = new RealExpression("678.5");
+		ExpressionList expressionList = new ExpressionList(expression1);
+		expressionList.getExpressions().add(expression2);
+		expressionList.getExpressions().add(expression3);
+		OrAggExpression orAggExpression = new OrAggExpression(expressionList);
+		String gnuExpressionString = GNUPrologTransformer.transform(orAggExpression).toArithmeticForm();
+		//assertEquals ("Car.hp * 123.5", gnuExpressionString);
+		System.out.println("resultado:"+gnuExpressionString);
+	}
+	
+	@Test
+	public void testInverseImpliesExpression() {
+		LongIDExpression longIDExpresion1 = new LongIDExpression("Money", null);
+		LongIDExpression longIDExpresion2 = new LongIDExpression("job", null);
+		InverseImpliesExpression inverseImpliesExpression = new InverseImpliesExpression(longIDExpresion1, longIDExpresion2);
+		String gnuExpressionString = GNUPrologTransformer.transform(inverseImpliesExpression).toArithmeticForm();
+		//assertEquals ("Car #==> Bus", gnuExpressionString);
+		System.out.println("resultado:"+gnuExpressionString);
 	}
 	
 }

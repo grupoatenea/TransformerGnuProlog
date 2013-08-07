@@ -17,13 +17,17 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.ImpliesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.InExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IncludesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.IntExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.InverseImpliesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LEQExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LongIDExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.LowerExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.MaxAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.MinAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MinusExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.MulAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.NotEqualsExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.NotExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.OrAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.OrExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ParenthesesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.PlusExpression;
@@ -187,6 +191,26 @@ public abstract class GNUPrologTransformer {
 		if (tvlExpression instanceof MinAggExpression){
 			MinAggExpression expression = (MinAggExpression)tvlExpression;
 			return new GNUPrologMinAggExpression(expression);
+		}
+		
+		if (tvlExpression instanceof MinusExpression){
+			MinusExpression expression = (MinusExpression)tvlExpression;
+			return new GNUPrologMinusExpression(expression);
+		}
+		
+		if (tvlExpression instanceof MulAggExpression){
+			MulAggExpression expression = (MulAggExpression)tvlExpression;
+			return new GNUPrologMulAggExpression(expression);
+		}
+		
+		if (tvlExpression instanceof OrAggExpression){
+			OrAggExpression expression = (OrAggExpression)tvlExpression;
+			return new GNUPrologOrAggExpression(expression);
+		}
+		
+		if (tvlExpression instanceof InverseImpliesExpression){
+			InverseImpliesExpression expression = (InverseImpliesExpression)tvlExpression;
+			return new GNUPrologInverseImpliesExpression(expression);
 		}
 		
 		throw new IllegalArgumentException("TVL expression " + tvlExpression.getClass().getSimpleName() + " is not defined for GNUProlog");

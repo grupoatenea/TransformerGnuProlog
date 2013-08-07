@@ -2,6 +2,8 @@ package co.edu.eafit.tvl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Vector;
+
 import org.junit.Test;
 
 import be.ac.info.fundp.TVLParser.SyntaxTree.AbsExpression;
@@ -11,6 +13,7 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.AvgAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.DivideExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.EqualsExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExcludesExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.Expression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExpressionList;
 import be.ac.info.fundp.TVLParser.SyntaxTree.FalseExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.GEQExpression;
@@ -37,7 +40,9 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.QuestExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.RealExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.SetExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.SumAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.TimesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.TrueExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.XorAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ZeroExpression;
 import co.edu.eafit.tvl.expression.GNUPrologTransformer;
 
@@ -348,4 +353,27 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		System.out.println("resultado:"+gnuExpressionString);
 	}
 	
+	@Test
+	public void testTimesExpression() {
+		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
+		RealExpression expression2 = new RealExpression("100.0");
+		TimesExpression timesExpression = new TimesExpression(expression1, expression2);
+		String gnuExpressionString = GNUPrologTransformer.transform(timesExpression).toArithmeticForm();
+		assertEquals ("Car.hp * 100.0", gnuExpressionString);
+		System.out.println("resultado:"+gnuExpressionString);
+	}
+	
+	@Test
+	public void testXorAggExpression() {
+		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
+		LongIDExpression expression2 = new LongIDExpression("Car.color", null);
+		
+		ExpressionList expresionList = new ExpressionList(expression1);
+		ExpressionList expresionListFinal = new ExpressionList(expression2, expresionList);
+		
+		XorAggExpression xorAggExpression = new XorAggExpression(expresionListFinal);
+		String gnuExpressionString = GNUPrologTransformer.transform(xorAggExpression).toArithmeticForm();
+		assertEquals ("( Car.hp ) #<=> ( Car.color )", gnuExpressionString);
+		System.out.println("resultado:"+gnuExpressionString);
+	}
 }

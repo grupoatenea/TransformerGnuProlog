@@ -34,7 +34,9 @@ import be.ac.info.fundp.TVLParser.SyntaxTree.PlusExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.QuestExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.RealExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.SumAggExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.TimesExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.TrueExpression;
+import be.ac.info.fundp.TVLParser.SyntaxTree.XorAggExpression;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ZeroExpression;
 
 public abstract class GNUPrologTransformer {
@@ -211,6 +213,16 @@ public abstract class GNUPrologTransformer {
 		if (tvlExpression instanceof InverseImpliesExpression){
 			InverseImpliesExpression expression = (InverseImpliesExpression)tvlExpression;
 			return new GNUPrologInverseImpliesExpression(expression);
+		}
+		
+		if (tvlExpression instanceof TimesExpression){
+			TimesExpression expression = (TimesExpression)tvlExpression;
+			return new GNUPrologTimesExpression(expression);
+		}
+		
+		if (tvlExpression instanceof XorAggExpression){
+			XorAggExpression expression = (XorAggExpression)tvlExpression;
+			return new GNUPrologXorAggExpression(expression);
 		}
 		
 		throw new IllegalArgumentException("TVL expression " + tvlExpression.getClass().getSimpleName() + " is not defined for GNUProlog");

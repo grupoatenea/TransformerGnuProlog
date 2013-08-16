@@ -1,0 +1,1 @@
+java -cp lib/TVLToGNUPrologTransformer.jar;lib/TVLParser.jar;lib/java-cup-11a-runtime.jar co.edu.eafit.tvl.transformation.TVLToGNUPrologTransformer

@@ -1,0 +1,14 @@
+root Bus {
+	group oneof {
+		Volkswagen {
+			real price is 180000;
+			real weight is 8;
+		},
+		Mercedes {
+			real price is 170000;
+			real weight is 75;	
+			bool a is price < 180000;
+			int b is sum(4, 8, 9);
+		}
+	}
+}

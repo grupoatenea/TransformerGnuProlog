@@ -1,0 +1,41 @@
+root Sisgeo {
+    group allof {
+			 Ubicacion{
+				  int precision in [1..7];
+				  enum coordenadas in {lineales, polares};
+			 },
+			 opt Mapa {
+				 group allof{
+						Capas{
+							this.Relieve excludes this.Satelite;
+							group [1..6]{
+								Relieve,
+								Satelite,
+								Ruta {
+								   enum mediostransporte in {persona, vehiculo, bus, metro, bicicleta};
+								   enum	opcionesruta in {mas_corta, mas_rapida, optima, sin_peajes, sin_trafico, autopistas};
+								},
+								Mallavial{
+									group oneof{
+										Tramovial
+									}
+								},
+								Aplicaciones,
+								Puntosinteres,
+								Trafico
+						  }
+						
+						},
+						opt Zonas
+			 
+				  }
+			 },
+			 Indicaciones {
+			      group allof{
+						Visual,
+						opt Auditivo,
+						opt Vibratorio
+					}
+			 }
+    }
+}

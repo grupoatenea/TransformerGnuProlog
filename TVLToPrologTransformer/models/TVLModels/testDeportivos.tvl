@@ -1,0 +1,26 @@
+root Vehicle {
+	group oneof {
+		Car {
+			group oneof {
+				Sports {
+					group oneof {
+						Ferrari {
+							int surfaceCuis;
+							surfaceCuis >= 0;
+						},
+						Porsche{
+							int surfaceCuis;
+							surfaceCuis >= 0;
+						},
+						Chevrolet {
+							int surfaceCuis;
+							surfaceCuis >= 0;
+						}
+					}
+				},
+				Family,
+				Home
+			}
+		}
+	}
+}

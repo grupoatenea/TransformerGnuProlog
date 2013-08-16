@@ -1,0 +1,300 @@
+/**
+ * Rexel v4 
+ * 
+ * Changelog:
+ * v1 Literal translation of Raouia Triki's variability model
+ * v2 Introduces "cloning" instead of nbrStuff attributes where appropriate
+ * v3 Corrections for constraints TC0014 and TC0018, typos, incorrect constraints
+ * v4 Structure modified to better reflect physical constraints 
+ * 
+ * @author: Germain Saval
+ */
+
+int numRangee in {1, 2, 3, 4, 5, 6};
+int numModule in {13, 18, 24};
+int hauteur in {1, 2, 3, 4, 5, 6};
+int largeur in [0..24];
+
+enum departements in {Dpt1, Dpt2, Dpt3, Dpt4, Dpt5, Dpt6, Dpt7, Dpt8, Dpt9, Dpt10, Dpt11, Dpt12, Dpt13, Dpt14, Dpt15, Dpt16, Dpt17, Dpt18, 
+	Dpt19, Dpt2A, Dpt2B, Dpt21, Dpt22, Dpt23, Dpt24, Dpt25, Dpt26, Dpt27, Dpt28, Dpt29, Dpt30, Dpt31, Dpt32, Dpt33, Dpt34, Dpt35, Dpt36, 
+	Dpt37, Dpt38, Dpt39, Dpt40, Dpt41, Dpt42, Dpt43, Dpt44, Dpt45, Dpt46, Dpt47, Dpt48, Dpt49, Dpt50, Dpt51, Dpt52, Dpt53, Dpt54, Dpt55, 
+	Dpt56, Dpt57, Dpt58, Dpt59, Dpt60, Dpt61, Dpt62, Dpt63, Dpt64, Dpt65, Dpt66, Dpt67, Dpt68, Dpt69, Dpt70, Dpt71, Dpt72, Dpt73, Dpt74, 
+	Dpt75, Dpt76, Dpt77, Dpt78, Dpt79, Dpt80, Dpt81, Dpt82, Dpt83, Dpt84, Dpt85, Dpt86, Dpt87, Dpt88, Dpt89, Dpt90, Dpt91, Dpt92, Dpt93, 
+	Dpt94, Dpt95, Dpt971, Dpt972, Dpt973, Dpt974, Dpt976}; 
+
+enum nomMarque in {Schneider, Legrand, Hager};
+
+enum typeLogement in {T1Equipe, T1NonEquipe, Autre};
+
+enum typeCoffret in {Encastre, Sailli};
+
+enum typeID in {IDAC, IDA, IDASi};
+enum calibreID in {ID25, ID40, ID63};
+
+enum typeDisj in {DAC, DA, DASi };
+enum calibreDisj in {D2, D6, D10, D16, D20, D25, D32};
+
+enum typeDisjDiff in {DDAC,	DDASi};
+enum calibreDisjDiff in {DD10, DD16, DD20, DD25, DD32};
+
+enum typeFusible in {FA, FASi};
+enum calibreFusible in {F10, F16, F20, F25};
+
+/* Note : 1 module = 17,8 mm */
+
+root Rexel {
+	group allof {
+		Logement {
+			int surface;
+			Logement.surface >=0;
+			/* TC0023 */
+			Logement.surface >= 35 -> count(Circuit) >= 2;
+			/* TC0042 */
+			Logement.surface <= 35 -> count(InterDiff.filter(InterDiff.type==IDAC))>=1 && count(InterDiff.filter(InterDiff.calibre==ID25))>=1;
+			/* TC0043 */
+			Logement.surface > 35 && Logement.surface <= 100 -> count(InterDiff.filter(InterDiff.type==IDAC))>=2 && count(InterDiff.filter(InterDiff.calibre==ID40))>=2;
+			/* TC0044 */
+			Logement.surface > 100 -> count(InterDiff.filter(InterDiff.type==IDAC))>=3 && count(InterDiff.filter(InterDiff.calibre==ID40))>=3;
+			
+			int nbrPieces;
+			nbrPieces >= 0;
+			nbrPieces == count(Chambre)+count(Cuisine)+count(Sejour)+count(WC);
+			
+			
+			departements departement;
+			/* TC0012 */
+			departement in {Dpt1, Dpt4, Dpt5, Dpt6, Dpt7, Dpt13, Dpt2A, Dpt2B, Dpt24, Dpt25, Dpt26, 
+				Dpt26, Dpt30, Dpt33, Dpt34, Dpt38, Dpt39, Dpt40, Dpt42, Dpt43, Dpt47, Dpt48, 
+				Dpt63, Dpt66, Dpt69, Dpt71, Dpt73, Dpt74, Dpt83, Dpt84, Dpt971, Dpt972, Dpt973 } -> Parafoudre;
+			
+			typeLogement type;
+			/* TC0014 */
+			Logement.type != T1Equipe -> count(CircuitSpecialise.filter(Congelateur || Four || LaveVaisselle || SecheLinge || LaveLinge )) >=3;
+			
+			/* TC0018 */
+			Logement.type == T1Equipe -> count(CircuitSpecialise.filter(Congelateur || Four || LaveVaisselle || SecheLinge || LaveLinge )) == 1;
+			
+			/* TC0019 */
+			Logement.type == T1NonEquipe -> count(Disjoncteur.filter(Disjoncteur.type == D32))==1 && count(Disjoncteur.filter(Disjoncteur.type == D16))==2;
+			
+			
+			group allof {
+				Chambre [0..*],
+				Cuisine [0..*] {
+					int surfaceCuis;
+					surfaceCuis >= 0;
+				},
+				Sejour [0..*] {
+					int surfaceSej;
+					surfaceSej >= 0;
+				},
+				WC [0..*],
+				Coffret {
+					int marge;
+					marge >=0 ; 
+					
+					/* Let selected = the sum of the modules of each equipment in the Coffret
+					 * 
+					 * Let marge = 20% of selected  
+					 *  
+					 * Let disponible = modulesParRangee * rangees
+					 * 
+					 * constraint: disponible - selected > marge 
+					 */
+					
+					numRangee rangees;
+					numModule modulesParRangee;
+					typeCoffret type;
+					nomMarque marque;
+					
+					/* En fonction de la marque, le nom de certains Žquipements ou fonctionnalitŽs peut changer */
+					bool automatique;
+					
+					/* TC0064 */
+					modulesParRangee * rangees > (sum(InterDiff.map(nbrModuleID)) + sum(Parafoudre.map(nbrModuleP)) + sum(Disjoncteur.map(nbrModuleD)) + sum(DisjDiff.map(nbrModuleDD)) + 
+					sum(Fusible.map(nbrModuleF)) + sum(PeigneHorizontal.map(nbrModulePE)) + sum(Telerupteur.map(nbrModuleTel))+ sum(Contacteur.map(nbrModuleConta)) + 
+					sum(Minuterie.map(nbrModuleMinuterie)) + sum(Temporisateur.map(nbrModulesTemp)) + sum(GestionnaireFilPilote.map(nbrModulesGFP)) + 
+					sum(InterrupteurHoraire.map(nbrModuleIH)) + sum(TeleVariateur.map(nbrModuleTelevariateur))) * 1.2 ;
+						
+					group someof {
+						Porte {
+							group oneof {
+								Opaque,
+								Transparent
+							}
+						},
+						Rehausse,
+						PeigneVertical {
+							hauteur h;
+							/* TC0065 */
+							h == rangees;
+						},
+						PeigneHorizontal [1..*] {
+							bool embroche;
+							embroche -> automatique;
+							!embroche -> !automatique;
+						
+							largeur nbrModulePE;
+							embroche -> nbrModulePE > 0;										
+							!embroche -> nbrModulePE == 0;
+											
+							group allof {
+								Protection {
+									group [2..2] {
+										InterDiff {
+											/* Un InterDiff par peigne. Protge les personnes. */
+											largeur nbrModuleID;
+											typeID type; 
+											calibreID calibre;
+											InterDiff -> !DisjDiff;
+											/* TC0045 */
+											sum(CircuitChauffage.map(puissanceChauffage))+sum(CircuitChauffeEau.map(puissanceChauffeEau)) > 8000
+											-> InterDiff.type == IDAC && InterDiff.calibre == ID63;
+											
+											/* TC0047 */
+											count(Circuit) > count(CircuitSpecialise) -> InterDiff.calibre == ID63; 
+										},
+										DisjDiff {
+											/* Permet de protŽger le circuit *et* les personnes. Plus cher. */
+											largeur nbrModuleDD;
+											typeDisjDiff type;
+											calibreDisjDiff calibre;
+											DisjDiff -> !InterDiff;
+										},
+										Parafoudre [0..1] {
+											largeur nbrModuleP;
+											/* TC0041 */
+											/* Parafoudre -> Pas de DisjDiff sur le *mme* circuit. */
+											Parafoudre -> !DisjDiff;	
+										}
+									}
+								},								
+								CircuitProtege [1..*] {
+								/* Sur un peigne on peut trouver plusieurs disjoncteurs */
+
+									group allof {
+										Protection {
+											/* Chaque circuit est en aval d'un disjoncteur ou fusible */
+											group oneof {
+												Disjoncteur {
+													largeur nbrModuleD;
+													calibreDisj calibre;
+													typeDisj type;												
+												},
+												Fusible {
+													largeur nbrModuleF;
+													typeFusible type;
+													calibreFusible calibre;
+												}
+											}
+										},
+										Circuit [1..*] {
+											/* TC0046 */
+											(CircuitCuisson || LaveLinge) && count(Circuit.filter(CircuitEclairage||CircuitPC16A))<=2 
+											-> count(InterDiff.filter(InterDiff.type==IDA && InterDiff.calibre==ID40))==1;
+
+											group oneof {
+												CircuitEclairage {
+													/* TC0056 */
+													CircuitEclairage -> count(Disjoncteur.filter(Disjoncteur.type == D16))==1 || count(Fusible.filter(Fusible.type == F10))==1;
+												},
+												CircuitPC16A {
+													/* TC0009 & TC0010 not implemented */
+													int nbrSocles in [0..8];
+												},
+												AutreCircuit,
+												CircuitSpecialise {
+													group oneof {
+														LaveLinge {
+															/* TC0053 */
+															LaveLinge -> DisjDiff;
+														},
+														LaveVaisselle {
+															/* TC0053 */
+															LaveVaisselle -> DisjDiff;
+														},
+														Four {
+															Four -> DisjDiff;
+														},
+														SecheLinge {
+															SecheLinge -> DisjDiff;
+														},
+														Congelateur {
+															/* TC0015 */
+															Congelateur -> DisjDiff;
+														},
+														CircuitVoletsRoulants {
+															/* TC0056 */
+															CircuitVoletsRoulants -> count(Disjoncteur.filter(Disjoncteur.type == D16))==1 || count(Fusible.filter(Fusible.type == F10))==1;
+														},
+														CircuitVMC {
+															/* TC0057 */
+															CircuitVMC -> count(Disjoncteur.filter(Disjoncteur.type == D16))==1 ;											
+														},
+														CircuitChauffeEau {
+															int puissanceChauffeEau;
+															puissanceChauffeEau >= 0;
+															/* TC0059 */
+															CircuitChauffeEau -> count(Disjoncteur.filter(Disjoncteur.type == D20))==1 || count(Fusible.filter(Fusible.type == F16))==1;
+														},
+														CircuitCuisson,
+														CircuitChauffage {
+															bool filPilote;
+															int puissanceChauffage;
+															puissanceChauffage >=0;
+															/* TC0026 to TC0030 */
+															puissanceChauffage <= 3500 -> count(Disjoncteur.filter(Disjoncteur.type == D16))==1;
+															puissanceChauffage > 3500 && puissanceChauffage <= 4500 -> count(Disjoncteur.filter(Disjoncteur.type == D20))==1;
+															puissanceChauffage > 4500 && puissanceChauffage <= 5750 -> count(Disjoncteur.filter(Disjoncteur.type == D25))==1;
+															puissanceChauffage > 5750 && puissanceChauffage <= 7250 -> count(Disjoncteur.filter(Disjoncteur.type == D32))==1;
+														}
+													}
+												}
+											}
+										}
+									}
+								}								
+							}
+						},
+						CommandeEclairage {
+							group [1..2] {
+								Telerupteur {
+									largeur nbrModuleTel;
+								},
+								Contacteur {
+									largeur nbrModuleConta;
+								},
+								Minuterie {
+									largeur nbrModuleMinuterie;
+								}
+							}
+							Telerupteur excludes Contacteur;
+						},
+						CommandeChauffage {
+							group oneof {
+								Temporisateur {
+									largeur nbrModulesTemp;
+								},
+								GestionnaireFilPilote {
+									largeur nbrModulesGFP;
+									/* TC0058 */
+									GestionnaireFilPilote -> count(Disjoncteur.filter(Disjoncteur.type == D2))==1;
+								}
+							}
+						},
+						Programmation {
+							group someof {
+								InterrupteurHoraire {
+									largeur nbrModuleIH;
+								},
+								TeleVariateur {
+									largeur nbrModuleTelevariateur;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

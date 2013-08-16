@@ -7,13 +7,14 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import co.edu.eafit.tvl.exception.TransformationException;
 import co.edu.eafit.tvl.transformation.TVLToGNUPrologTransformer;
 import co.edu.eafit.tvl.transformation.TVLToGNUPrologTransformerImpl;
 
 public class TVLToGNUPrologTransformerTest {
 
 	@Test
-	public void testTransform() throws IOException {
+	public void testTransform() throws IOException, TransformationException {
 		File f = new File("/TVL/test5LongID.pl");
 		f.delete();
 		TVLToGNUPrologTransformer transformer = new TVLToGNUPrologTransformerImpl("/TVL/test5LongID.tvl", "/TVL/test5LongID.pl");
@@ -22,7 +23,7 @@ public class TVLToGNUPrologTransformerTest {
 	}
 	
 	@Test
-	public void testTransformEnumValues() throws IOException {
+	public void testTransformEnumValues() throws IOException, TransformationException {
 		File f = new File("/TVL/test1EnumBooleanForm.pl");
 		f.delete();
 		TVLToGNUPrologTransformer transformer = new TVLToGNUPrologTransformerImpl("/TVL/test1EnumBooleanForm.tvl", "/TVL/test1EnumBooleanForm.pl");
@@ -31,7 +32,7 @@ public class TVLToGNUPrologTransformerTest {
 	}
 	
 	@Test
-	public void testTransformIntValues() throws IOException {
+	public void testTransformIntValues() throws IOException, TransformationException {
 		File f = new File("/TVL/testDeportivos.pl");
 		f.delete();
 		TVLToGNUPrologTransformer transformer = new TVLToGNUPrologTransformerImpl("/TVL/testDeportivos.tvl", "/TVL/testDeportivos.pl");
@@ -39,8 +40,8 @@ public class TVLToGNUPrologTransformerTest {
 		assertTrue(f.exists());
 	}
 	
-	@Test
-	public void testTransformComplexTVL() throws IOException {
+	@Test(expected=TransformationException.class)
+	public void testTransformComplexTVL() throws IOException, TransformationException {
 		File f = new File("/TVL/rexel_v4.pl");
 		f.delete();
 		TVLToGNUPrologTransformer transformer = new TVLToGNUPrologTransformerImpl("/TVL/rexel_v4.tvl", "/TVL/rexel_v4.pl");
@@ -49,7 +50,7 @@ public class TVLToGNUPrologTransformerTest {
 	}
 	
 	@Test
-	public void testTransformBooleanValue() throws IOException {
+	public void testTransformSimpleTVL() throws IOException, TransformationException {
 		File f = new File("/TVL/testBus.pl");
 		f.delete();
 		TVLToGNUPrologTransformer transformer = new TVLToGNUPrologTransformerImpl("/TVL/testBus.tvl", "/TVL/testBus.pl");
@@ -58,7 +59,7 @@ public class TVLToGNUPrologTransformerTest {
 	}
 	
 	@Test
-	public void testTransformSisgeo() throws IOException {
+	public void testTransformSisgeo() throws IOException, TransformationException {
 		File f = new File("/TVL/sisgeo.pl");
 		f.delete();
 		TVLToGNUPrologTransformer transformer = new TVLToGNUPrologTransformerImpl("/TVL/sisgeo.tvl", "/TVL/sisgeo.pl");

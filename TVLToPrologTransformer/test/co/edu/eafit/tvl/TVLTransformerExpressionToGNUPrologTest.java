@@ -101,7 +101,7 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		LEQExpression leqExpression = new LEQExpression(new LongIDExpression("Bus.hp", null), new IntExpression("800"));
 		EqualsExpression equalsExpression = new EqualsExpression(geqExpression, leqExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(equalsExpression).toArithmeticForm();
-		assertEquals ("Car.hp #>= 123 #= Bus.hp #=< 800", gnuExpressionString);
+		assertEquals ("Car.hp #>= 123 #==> Bus.hp #=< 800", gnuExpressionString);
 	}
 	
 	@Test
@@ -318,7 +318,7 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		EqualsExpression equalsExpression = new EqualsExpression(new LongIDExpression("Car.weight", null), sumAggExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(equalsExpression).toArithmeticForm();
 		assertEquals (
-				"Car.weight #= R1 + R2,\n" + 
+				"Car.weight #> 0 #==> Car.weight #= R1 + R2,\n" + 
 				"Sports #==> R1 #= Sports.weight, #\\ Sports #==> R1 #= 0,\n" +
 				"Family #==> R2 #= Family.weight, #\\ Family #==> R2 #= 0", gnuExpressionString);
 	}

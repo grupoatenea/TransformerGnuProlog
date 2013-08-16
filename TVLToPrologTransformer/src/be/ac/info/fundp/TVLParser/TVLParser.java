@@ -1,10 +1,7 @@
 package be.ac.info.fundp.TVLParser;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Scanner;
 
@@ -19,7 +16,6 @@ import be.ac.info.fundp.TVLParser.Util.BooleanForm;
 import be.ac.info.fundp.TVLParser.Util.IDGenerator;
 import be.ac.info.fundp.TVLParser.Util.NormalForm;
 import be.ac.info.fundp.TVLParser.Util.Solver;
-import be.ac.info.fundp.TVLParser.Util.Util;
 import be.ac.info.fundp.TVLParser.exceptions.AmbiguousReferenceException;
 import be.ac.info.fundp.TVLParser.exceptions.ChildrenFeatureNotFoundException;
 import be.ac.info.fundp.TVLParser.exceptions.SymbolNotFoundException;

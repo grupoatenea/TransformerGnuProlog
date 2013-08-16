@@ -29,7 +29,7 @@ import co.edu.eafit.tvl.expression.GNUPrologExpressionTransformer;
 import co.edu.eafit.tvl.transformation.GNUPrologNamesContainer;
 import co.edu.eafit.tvl.transformation.TVLFeaturesTree;
 
-
+@Ignore(value="This class have code that was used understanding TVLParser API")
 public class TVLTransformerTest {
 	
 	@Test

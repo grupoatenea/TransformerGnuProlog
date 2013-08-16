@@ -35,7 +35,7 @@ public class AttributesDomainValuesBuilder implements GNUPrologBuilder {
 		        			sb.append( FD_DOMAIN_FUNCTION ).append( "([").append( gnuPrologAttributeName ).append( "], 1, " + enumSetExpression.getContainedValues().size() ).append("),\n");
 		        		}
 		        	}
-					sb.append( getAttributeConstraint(gnuPrologFeatureName, gnuPrologAttributeName) );
+					sb.append( getAttributeConstraints(gnuPrologFeatureName, gnuPrologAttributeName) );
 		        }
 			}
 		}
@@ -43,7 +43,7 @@ public class AttributesDomainValuesBuilder implements GNUPrologBuilder {
 		return sb.toString();
 	}
 
-	private String getAttributeConstraint(String gnuPrologFeatureName, String gnuPrologAttributeName) {
+	private String getAttributeConstraints(String gnuPrologFeatureName, String gnuPrologAttributeName) {
 		return gnuPrologFeatureName + " #> 0 #<=> " + gnuPrologAttributeName +  " #> 0,\n";
 	}
 	

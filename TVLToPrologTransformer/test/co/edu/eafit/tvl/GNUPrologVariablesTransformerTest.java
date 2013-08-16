@@ -19,7 +19,7 @@ import co.edu.eafit.tvl.transformation.GNUPrologFeatureTransformer;
 import co.edu.eafit.tvl.transformation.GNUPrologVariableTransformer;
 import co.edu.eafit.tvl.transformation.TVLFeaturesTree;
 
-public class GNUPrologFeaturesTransformerTest {
+public class GNUPrologVariablesTransformerTest {
 
 	
 	

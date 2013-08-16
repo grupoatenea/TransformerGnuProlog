@@ -4,27 +4,26 @@ import java.io.IOException;
 
 public abstract class TVLToGNUPrologTransformer {
 	
-	public abstract String getHeader();
-	public abstract String getFeaturesList();
-	public abstract String getAttributesList();
-	public abstract String getFeaturesDomainValues();
-	public abstract String getAttributesDomainValues();
-	public abstract String getMandatoryOptionalRelations();
-	public abstract String getConstraints();
-	public abstract String getFooter();
-	public abstract void save(String gnuFile) throws IOException;
+	public abstract void buildHeader();
+	public abstract void buildFeaturesList();
+	public abstract void buildAttributesList();
+	public abstract void buildFeaturesDomainValues();
+	public abstract void buildAttributesDomainValues();
+	public abstract void buildMandatoryOptionalRelations();
+	public abstract void buildConstraints();
+	public abstract void buildFooter();
+	public abstract void save() throws IOException;
 	
 	public final void transform() throws IOException{
-		StringBuilder sb = new StringBuilder();
-		sb.append( getHeader() );
-		sb.append( getFeaturesList() );
-		sb.append( getAttributesList() );
-		sb.append( getFeaturesDomainValues() );
-		sb.append( getAttributesDomainValues() );
-		sb.append( getMandatoryOptionalRelations() );
-		sb.append( getConstraints() );
-		sb.append( getFooter() );
-		save( sb.toString() );
+		buildHeader();
+		buildFeaturesList();
+		buildAttributesList();
+		buildFeaturesDomainValues();
+		buildAttributesDomainValues();
+		buildMandatoryOptionalRelations();
+		buildConstraints();
+		buildFooter();
+		save();
 	}
 	
 }

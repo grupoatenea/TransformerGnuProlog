@@ -19,50 +19,88 @@ public class MandatoryOptionalRelationshipsBuilder implements GNUPrologBuilder {
 		StringBuilder sb = new StringBuilder();
 		for (FeatureSymbol feature : features) {
 			if ( feature.isRoot() ){
-				sb.append(GNUPrologNamesContainer.getInstance().getFeatureName(feature)).append( " #= 1,\n" );
+				appendRootConstraint(sb, feature);
 			}
-
-			if ( hasNotCardinality(feature) ) {
+			if ( hasNotGroupCardinality(feature) ) {
 				// Do nothing. Doesn't matter.
 			} else if ( hasAndDecomposition(feature) ) {
-				Iterator<Map.Entry<String, FeatureSymbol>> it = feature.getChildrenFeatures().entrySet().iterator();
-		        while (it.hasNext()) {
-		        	FeatureSymbol childrenFeature = it.next().getValue();
-		        	if ( childrenFeature.isOptionnal() ) {
-						sb.append(GNUPrologNamesContainer.getInstance().getFeatureName(feature)).append( " #>= " ).append(GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature)).append(",\n");
-					} else {
-						sb.append(GNUPrologNamesContainer.getInstance().getFeatureName(feature)).append( " #= " ).append(GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature)).append(",\n");
-					}
-				}
-			} else if ( hasGroupCardinality(feature) ) {
-				StringBuilder sbGroupCardinality = new StringBuilder();
-				Iterator<Map.Entry<String, FeatureSymbol>> it = feature.getChildrenFeatures().entrySet().iterator();
-				if ( it.hasNext() ){
-					sbGroupCardinality.append( GNUPrologNamesContainer.getInstance().getFeatureName( it.next().getValue() ) );
-				}
-		        while (it.hasNext()) {
-		        	FeatureSymbol childrenFeature = it.next().getValue();
-		        	sbGroupCardinality.append( " + " ).append( GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature) );
-		        }
-				String gnuProloegMinRange = new StringBuilder().append( sbGroupCardinality.toString() ).append(" #>= ").append( feature.getMinCardinality() ).append( " * ").append(GNUPrologNamesContainer.getInstance().getFeatureName( feature )).append(",\n").toString();
-				String gnuProloegMaxRange = new StringBuilder().append( sbGroupCardinality.toString() ).append(" #=< ").append( feature.getMaxCardinality() ).append( " * ").append(GNUPrologNamesContainer.getInstance().getFeatureName( feature )).append(",\n").toString();
-				sb.append(gnuProloegMinRange);
-				sb.append(gnuProloegMaxRange);
+				appendAndDecompositionConstraint(sb, feature);
+			} else if ( hasXorDecompositions(feature) ) {
+				appendXorDecompositionsConstraints(sb, feature);
+			} else if ( hasOrDecompositions(feature) ) {
+				appendOrDecompositionsConstraints(sb, feature);
 			}
 		}
-		sb.append("\n");
+		appendLineJump(sb);
 		return sb.toString();
 	}
+
+	private void appendLineJump(StringBuilder sb) {
+		sb.append("\n");
+	}
+
+	private void appendRootConstraint(StringBuilder sb, FeatureSymbol feature) {
+		sb.append(GNUPrologNamesContainer.getInstance().getFeatureName(feature)).append( " #= 1,\n" );
+	}
+
+	private void appendAndDecompositionConstraint(StringBuilder sb,
+			FeatureSymbol feature) {
+		Iterator<Map.Entry<String, FeatureSymbol>> it = feature.getChildrenFeatures().entrySet().iterator();
+		while (it.hasNext()) {
+			FeatureSymbol childrenFeature = it.next().getValue();
+			if ( childrenFeature.isOptionnal() ) {
+				sb.append(GNUPrologNamesContainer.getInstance().getFeatureName(feature)).append( " #>= " ).append(GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature)).append(",\n");
+			} else {
+				sb.append(GNUPrologNamesContainer.getInstance().getFeatureName(feature)).append( " #= " ).append(GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature)).append(",\n");
+			}
+		}
+	}
+
+	private void appendOrDecompositionsConstraints(StringBuilder sb,
+			FeatureSymbol feature) {
+		StringBuilder sbGroupCardinality = new StringBuilder();
+		Iterator<Map.Entry<String, FeatureSymbol>> it = feature.getChildrenFeatures().entrySet().iterator();
+		if ( it.hasNext() ){
+			sbGroupCardinality.append( GNUPrologNamesContainer.getInstance().getFeatureName( it.next().getValue() ) );
+		}
+		while (it.hasNext()) {
+			FeatureSymbol childrenFeature = it.next().getValue();
+			sbGroupCardinality.append( " + " ).append( GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature) );
+		}
+		String gnuProloegMinRange = new StringBuilder().append( sbGroupCardinality.toString() ).append(" #>= ").append( feature.getMinCardinality() ).append( " * ").append(GNUPrologNamesContainer.getInstance().getFeatureName( feature )).append(",\n").toString();
+		String gnuProloegMaxRange = new StringBuilder().append( sbGroupCardinality.toString() ).append(" #=< ").append( feature.getMaxCardinality() ).append( " * ").append(GNUPrologNamesContainer.getInstance().getFeatureName( feature )).append(",\n").toString();
+		sb.append(gnuProloegMinRange);
+		sb.append(gnuProloegMaxRange);
+	}
+
+	private void appendXorDecompositionsConstraints(StringBuilder sb,
+			FeatureSymbol feature) {
+		StringBuilder sbGroupCardinality = new StringBuilder();
+		Iterator<Map.Entry<String, FeatureSymbol>> it = feature.getChildrenFeatures().entrySet().iterator();
+		if ( it.hasNext() ){
+			sbGroupCardinality.append( GNUPrologNamesContainer.getInstance().getFeatureName( it.next().getValue() ) );
+		}
+		while (it.hasNext()) {
+			FeatureSymbol childrenFeature = it.next().getValue();
+			sbGroupCardinality.append( " + " ).append( GNUPrologNamesContainer.getInstance().getFeatureName(childrenFeature) );
+		}
+		String gnuProloegXorDecompositionsConstraint = new StringBuilder().append( sbGroupCardinality.toString() ).append(" #= ").append( feature.getMinCardinality() ).append(",\n").toString();
+		sb.append( gnuProloegXorDecompositionsConstraint );
+	}
 	
-	private boolean hasGroupCardinality(FeatureSymbol feature) {
+	private boolean hasOrDecompositions(FeatureSymbol feature) {
 		return feature.getMinCardinality() != feature.getMaxCardinality();
 	}
 
 	private boolean hasAndDecomposition(FeatureSymbol feature) {
-		return feature.getMinCardinality() == feature.getMaxCardinality();
+		return feature.getMinCardinality() == feature.getMaxCardinality() && feature.getMinCardinality() != 1;
+	}
+	
+	private boolean hasXorDecompositions(FeatureSymbol feature) {
+		return feature.getMinCardinality() == feature.getMaxCardinality() && feature.getMinCardinality() == 1;
 	}
 
-	private boolean hasNotCardinality(FeatureSymbol feature) {
+	private boolean hasNotGroupCardinality(FeatureSymbol feature) {
 		return feature.getMinCardinality() == 0 && feature.getMaxCardinality() == 0;
 	}
 }

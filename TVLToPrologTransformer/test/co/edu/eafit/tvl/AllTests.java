@@ -8,7 +8,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ 
 		TVLTransformerExpressionToGNUPrologTest.class,
 		TVLTransformerTest.class,
-		GNUPrologFeaturesTransformerTest.class })
+		GNUPrologVariablesTransformerTest.class,
+		TVLToGNUPrologTransformerTest.class })
 public class AllTests {
 
 }

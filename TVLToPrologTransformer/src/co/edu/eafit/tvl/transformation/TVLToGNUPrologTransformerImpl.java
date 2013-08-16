@@ -2,13 +2,13 @@ package co.edu.eafit.tvl.transformation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import edu.unal.utils.FileUtils;
 import be.ac.info.fundp.TVLParser.TVLParser;
 import be.ac.info.fundp.TVLParser.symbolTables.FeatureSymbol;
+import co.edu.eafit.tvl.exception.TransformationException;
+import edu.unal.utils.FileUtils;
 
 
 public class TVLToGNUPrologTransformerImpl extends TVLToGNUPrologTransformer {
@@ -24,79 +24,88 @@ public class TVLToGNUPrologTransformerImpl extends TVLToGNUPrologTransformer {
 	
 	private List<FeatureSymbol> features;
 	private String gnuPrologOutputFile;
+	
+	private StringBuilder gnuPrologProgramBuffer = new StringBuilder();
 
-	public TVLToGNUPrologTransformerImpl(String tvlInputFile, String gnuPrologOutputFile) throws FileNotFoundException {
+	public TVLToGNUPrologTransformerImpl(String tvlInputFile, String gnuPrologOutputFile) throws FileNotFoundException, TransformationException {
 		this.gnuPrologOutputFile = gnuPrologOutputFile;
 		File fTVL = new File(tvlInputFile);
-		TVLParser parser = new TVLParser(fTVL);
-		parser.run();
-		System.out.println( parser.getNormalForm() );
-		if ( !parser.isValid() ) parser.printInfo();
+		TVLParser parser = parseTVLFile(fTVL);
 		FeatureSymbol root = parser.getNormalizedRoot();
 		TVLFeaturesTree tree = new TVLFeaturesTree(root);
 		List<FeatureSymbol> features = tree.toList();
 		GNUPrologNamesContainer.populate(features);
 		this.features = features;
 	}
+
+	private TVLParser parseTVLFile(File fTVL) throws FileNotFoundException, TransformationException {
+		TVLParser parser = new TVLParser(fTVL);
+		parser.run();
+		if ( !parser.isValid() ) { 
+			if ( parser.getSyntaxError() != null){
+				throw new TransformationException("Feature model invalid, syntax error:\n" + parser.getSyntaxError().getMessage(), parser.getSyntaxError());
+			}
+			if ( parser.getTypeError() != null){
+				throw new TransformationException("Feature model invalid, type error:\n" + parser.getTypeError().getMessage(), parser.getTypeError());
+			}
+		}
+		return parser;
+	}
 	
 	@Override
-	public String getHeader() {
+	public void buildHeader() {
 		StringBuilder sb = new StringBuilder(HEADER).append("\n\n");
-		return sb.toString();
+		gnuPrologProgramBuffer.append( sb.toString() );
 	}
 
 	@Override
-	public String getFeaturesList() {
+	public void buildFeaturesList() {
 		StringBuilder sb = new StringBuilder( FEATURES_ASSIGNMENT_VARIABLE);
 		sb.append( GNUPrologUtils.getVariableList( GNUPrologNamesContainer.getInstance().getFeaturesGNUProlog() ) );
 		sb.append(",\n\n");
-		return sb.toString();
+		gnuPrologProgramBuffer.append( sb.toString() );
 	}
 
 	@Override
-	public String getAttributesList() {
+	public void buildAttributesList() {
 		StringBuilder sb = new StringBuilder(ATTRIBUTES_ASSIGNMENT_VARIABLE);
 		sb.append( GNUPrologUtils.getVariableList( GNUPrologNamesContainer.getInstance().getAttributesGNUProlog() ) );
 		sb.append(",\n\n");
-		return sb.toString();
+		gnuPrologProgramBuffer.append( sb.toString() );
 	}
 
 	@Override
-	public String getFeaturesDomainValues() {
-		return new FeaturesDomainValuesBuilder().build();
+	public void buildFeaturesDomainValues() {
+		gnuPrologProgramBuffer.append( new FeaturesDomainValuesBuilder().build() );
 	}
 	
 	@Override
-	public String getAttributesDomainValues() {
-		return new AttributesDomainValuesBuilder( features ).build();
+	public void buildAttributesDomainValues() {
+		gnuPrologProgramBuffer.append( new AttributesDomainValuesBuilder( features ).build() );
 	}
 	
 	@Override
-	public String getConstraints() {
-		return new ConstraintBuilder(features).build();
+	public void buildConstraints() {
+		gnuPrologProgramBuffer.append( new ConstraintBuilder(features).build() );
+	}
+	
+	@Override
+	public void buildMandatoryOptionalRelations() {
+		gnuPrologProgramBuffer.append( new MandatoryOptionalRelationshipsBuilder(features).build() );
 	}
 
 	@Override
-	public String getFooter() {
+	public void buildFooter() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(APPEND_FUNCTION + "(" + FEATURES_VARIABLE_NAME + ", " + ATTRIBUTES_VARIABLE_NAME + ", " + S_VARIABLE + "),").append("\n");
 		sb.append(FD_LABELING_FUNCTION + "(" + S_VARIABLE + ").");
 		sb.append("\n");
-		return sb.toString();
+		gnuPrologProgramBuffer.append( sb.toString() );
 	}
 	
 	@Override
-	public void save(String gnuFile) throws IOException {
-		FileUtils.writePrologProgram(gnuPrologOutputFile, gnuFile);
-//		FileOutputStream fos = new FileOutputStream(gnuPrologOutputFile);
-//		fos.write(gnuFile.getBytes());
-//		fos.flush();
-//		fos.close();
-	}
-
-	@Override
-	public String getMandatoryOptionalRelations() {
-		return new MandatoryOptionalRelationshipsBuilder(features).build();
+	public void save() throws IOException {
+		FileUtils.writePrologProgram(gnuPrologOutputFile, gnuPrologProgramBuffer.toString());
 	}
 
 }

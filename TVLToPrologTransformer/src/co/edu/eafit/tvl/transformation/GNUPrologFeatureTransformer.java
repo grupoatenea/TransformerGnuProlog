@@ -5,7 +5,7 @@ import java.util.Map;
 
 import be.ac.info.fundp.TVLParser.symbolTables.FeatureSymbol;
 
-public class GNUPrologFeatureTransformer {
+public class GNUPrologFeatureTransformer extends GNUPrologVariableTransformer {
 	
 	private FeatureSymbol feature;
 	private String gnuPrologName;

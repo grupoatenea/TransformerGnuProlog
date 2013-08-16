@@ -425,10 +425,6 @@ public class TVLParser {
 		}
 		return null;
 	}
-	
-	public FeaturesSymbolTable getFeaturesSymbolTable(){
-		return this.featuresSymbolTable;
-	}
 
 	/**
 	 * Checks whether the model can be transformed into boolean form.

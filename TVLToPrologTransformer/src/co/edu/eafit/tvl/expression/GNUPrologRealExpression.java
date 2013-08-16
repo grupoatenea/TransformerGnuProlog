@@ -12,7 +12,8 @@ public class GNUPrologRealExpression implements GNUPrologExpression {
 
 	@Override
 	public String toArithmeticForm() {
-		return String.valueOf( realExpression.getValue() );
+		throw new IllegalArgumentException("Real Expression is not supported. Value: " + realExpression.getValue());
 	}
+	
 
 }

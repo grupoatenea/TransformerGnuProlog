@@ -17,7 +17,7 @@ public class GNUPrologQuestExpression implements GNUPrologExpression {
 	@Override
 	public String toArithmeticForm() {
 		Expression expression1 = new ImpliesExpression( new ParenthesesExpression( expression.getExpression1() ), new ParenthesesExpression( expression.getExpression2() ) );
-		Expression expression2 = new ImpliesExpression( new ParenthesesExpression( new NotExpression(expression.getExpression1())), new ParenthesesExpression( expression.getExpression3() ) );
+		Expression expression2 = new ImpliesExpression( new NotExpression( new ParenthesesExpression( expression.getExpression1() ) ), new ParenthesesExpression( expression.getExpression3() ) );
 		String nguProglogExpression = GNUPrologExpressionTransformer.transform(expression1).toArithmeticForm();
 		String nguProglogExpression2 = GNUPrologExpressionTransformer.transform(expression2).toArithmeticForm();;
 		return nguProglogExpression + ", " + nguProglogExpression2;

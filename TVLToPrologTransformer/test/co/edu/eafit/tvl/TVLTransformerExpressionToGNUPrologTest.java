@@ -46,7 +46,7 @@ import co.edu.eafit.tvl.transformation.GNUPrologNamesContainer;
 
 public class TVLTransformerExpressionToGNUPrologTest {
 	
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void testAbsPlusRealExpression() {
 		RealExpression s1 = new RealExpression("2.6");
 		RealExpression s2 = new RealExpression("2.9");
@@ -54,6 +54,16 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		AbsExpression absExpression = new AbsExpression(plusExpression);
 		String gnuAbsExpressionString = GNUPrologExpressionTransformer.transform(absExpression).toArithmeticForm();
 		assertEquals ("abs(2.6 + 2.9)", gnuAbsExpressionString);
+	}
+	
+	@Test
+	public void testAbsPlusIntExpression() {
+		IntExpression s1 = new IntExpression("2");
+		IntExpression s2 = new IntExpression("4");
+		PlusExpression plusExpression = new PlusExpression(s1, s2);
+		AbsExpression absExpression = new AbsExpression(plusExpression);
+		String gnuAbsExpressionString = GNUPrologExpressionTransformer.transform(absExpression).toArithmeticForm();
+		assertEquals ("abs(2 + 4)", gnuAbsExpressionString);
 	}
 	
 	@Test
@@ -69,10 +79,10 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	@Test
 	public void testAndExpression() {
 		LowerExpression lowerExpression = new LowerExpression(new IntExpression("123"), new IntExpression("5"));
-		GreaterExpression greaterExpression = new GreaterExpression(new RealExpression("123.5"), new RealExpression("5.8"));
+		GreaterExpression greaterExpression = new GreaterExpression(new IntExpression("12345"), new IntExpression("58"));
 		AndExpression andExpression = new AndExpression(lowerExpression, greaterExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(andExpression).toArithmeticForm();
-		assertEquals ("123 #< 5 #/\\ 123.5 #> 5.8", gnuExpressionString);
+		assertEquals ("123 #< 5 #/\\ 12345 #> 58", gnuExpressionString);
 	}
 	
 	@Test
@@ -96,21 +106,26 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	
 	@Test
 	public void testExcludesExpression() {
+		GNUPrologNamesContainer.populate();
+		GNUPrologNamesContainer.getInstance().getFeaturesGNUProlog().put(1, "Car_hp");
+		GNUPrologNamesContainer.getInstance().getFeaturesGNUProlog().put(2, "Bus_hp");
 		LongIDExpression longIDExpresion1 = new LongIDExpression("Car.hp", null);
 		LongIDExpression longIDExpresion2 = new LongIDExpression("Bus.hp", null);
 		ExcludesExpression excludesExpression = new ExcludesExpression(longIDExpresion1.getLongID(), longIDExpresion2.getLongID(), null);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(excludesExpression).toArithmeticForm();
-		assertEquals ("Car.hp + Bus.hp #=< 1", gnuExpressionString);
+		assertEquals ("Car_hp + Bus_hp #=< 1", gnuExpressionString);
 	}
 	
 	@Test
 	public void testIncludesExpression() {
-		GNUPrologNamesContainer.init();
+		GNUPrologNamesContainer.populate();
+		GNUPrologNamesContainer.getInstance().getFeaturesGNUProlog().put(1, "Car_hp");
+		GNUPrologNamesContainer.getInstance().getFeaturesGNUProlog().put(2, "Bus_hp");
 		LongIDExpression longIDExpresion1 = new LongIDExpression("Car.hp", null);
 		LongIDExpression longIDExpresion2 = new LongIDExpression("Bus.hp", null);
 		IncludesExpression includesExpression = new IncludesExpression(longIDExpresion1.getLongID(), longIDExpresion2.getLongID(), null);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(includesExpression).toArithmeticForm();
-		assertEquals ("Car.hp #==> Bus.hp", gnuExpressionString);
+		assertEquals ("Car_hp #==> Bus_hp", gnuExpressionString);
 	}
 	
 	@Test
@@ -126,10 +141,10 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	public void testQuestExpression() {
 		GEQExpression expression1 = new GEQExpression(new LongIDExpression("Car", null), new IntExpression("123"));
 		LEQExpression expression2 = new LEQExpression(new LongIDExpression("Bus", null), new IntExpression("800"));
-		GreaterExpression expression3 = new GreaterExpression(new RealExpression("123.5"), new RealExpression("5.8"));
+		GreaterExpression expression3 = new GreaterExpression(new IntExpression("1234"), new IntExpression("5"));
 		QuestExpression questExpression = new QuestExpression(expression1, expression2, expression3);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(questExpression).toArithmeticForm();
-		assertEquals ("( Car #>= 123 ) #==> ( Bus #=< 800 ), ( #\\ Car #>= 123 ) #==> ( 123.5 #> 5.8 )", gnuExpressionString);
+		assertEquals ("( Car #>= 123 ) #==> ( Bus #=< 800 ), #\\ ( Car #>= 123 ) #==> ( 1234 #> 5 )", gnuExpressionString);
 	}
 	
 	@Test
@@ -142,10 +157,10 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	@Test
 	public void testOrExpression() {
 		LowerExpression lowerExpression = new LowerExpression(new IntExpression("123"), new IntExpression("5"));
-		GreaterExpression greaterExpression = new GreaterExpression(new RealExpression("123.5"), new RealExpression("5.8"));
+		GreaterExpression greaterExpression = new GreaterExpression(new IntExpression("1234"), new IntExpression("56"));
 		OrExpression orExpression = new OrExpression(lowerExpression, greaterExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(orExpression).toArithmeticForm();
-		assertEquals ("123 #< 5 #\\/ 123.5 #> 5.8", gnuExpressionString);
+		assertEquals ("123 #< 5 #\\/ 1234 #> 56", gnuExpressionString);
 	}
 	
 	@Test
@@ -159,19 +174,19 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	@Test
 	public void testDivideExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
-		RealExpression expression2 = new RealExpression("123.5");
+		IntExpression expression2 = new IntExpression("123");
 		DivideExpression divideExpression = new DivideExpression(expression1, expression2);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(divideExpression).toArithmeticForm();
-		assertEquals ("Car.hp / 123.5", gnuExpressionString);
+		assertEquals ("Car.hp / 123", gnuExpressionString);
 	}
 	
 	@Test
 	public void testIfAndOnlyIfExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
-		RealExpression expression2 = new RealExpression("123.5");
+		IntExpression expression2 = new IntExpression("123");
 		IfAndOnlyIfExpression ifAndOnlyIfExpression = new IfAndOnlyIfExpression(expression1, expression2);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(ifAndOnlyIfExpression).toArithmeticForm();
-		assertEquals ("Car.hp #<=> 123.5", gnuExpressionString);
+		assertEquals ("Car.hp #<=> 123", gnuExpressionString);
 	}
 	
 	@Test
@@ -192,40 +207,40 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	public void testInExpressionListValues() {
 		IntExpression intExpression1 = new IntExpression("123");
 		IntExpression intExpression2 = new IntExpression("5");
-		RealExpression realExpression = new RealExpression("68.5");
+		IntExpression realExpression = new IntExpression("68");
 		ExpressionList expressionList = new ExpressionList(intExpression1, new ExpressionList(intExpression2));
 		SetExpression setExpression = new SetExpression(expressionList, null);
 		InExpression inExpression = new InExpression(realExpression, setExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(inExpression).toArithmeticForm();
-		assertEquals ("68.5 #= 5; 68.5 #= 123", gnuExpressionString);
+		assertEquals ("(68 #= 5; 68 #= 123)", gnuExpressionString);
 	}
 	
 	@Test
 	public void testInExpressionRange() {
-		RealExpression realExpression = new RealExpression("2.5");
+		IntExpression realExpression = new IntExpression("5");
 		SetExpression setExpression = new SetExpression("1", "10", null);
 		InExpression inExpression = new InExpression(realExpression, setExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(inExpression).toArithmeticForm();
-		assertEquals ("2.5 #>= 1, 2.5 #=< 10", gnuExpressionString);
+		assertEquals ("5 #>= 1, 5 #=< 10", gnuExpressionString);
 	}
 
 	@Test
 	public void testParanthesisxpression() {
-		RealExpression realExpression = new RealExpression("2.5");
+		IntExpression realExpression = new IntExpression("123456");
 		ParenthesesExpression parenthesesExpression = new ParenthesesExpression(realExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(parenthesesExpression).toArithmeticForm();
-		assertEquals ("( 2.5 )", gnuExpressionString);
+		assertEquals ("( 123456 )", gnuExpressionString);
 	}
 	
 	@Test
 	public void testMultipleParanthesisxpression() {
 		LowerExpression lowerExpression = new LowerExpression(new IntExpression("123"), new IntExpression("5"));
 		ParenthesesExpression parenthesesLowerExpression = new ParenthesesExpression(lowerExpression);
-		GreaterExpression greaterExpression = new GreaterExpression(new RealExpression("123.5"), new RealExpression("5.8"));
+		GreaterExpression greaterExpression = new GreaterExpression(new IntExpression("123456"), new IntExpression("58"));
 		ParenthesesExpression parenthesesGreaterExpression = new ParenthesesExpression(greaterExpression);
 		OrExpression orExpression = new OrExpression(parenthesesLowerExpression, parenthesesGreaterExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(orExpression).toArithmeticForm();
-		assertEquals ("( 123 #< 5 ) #\\/ ( 123.5 #> 5.8 )", gnuExpressionString);
+		assertEquals ("( 123 #< 5 ) #\\/ ( 123456 #> 58 )", gnuExpressionString);
 	}
 	
 	@Test
@@ -287,6 +302,7 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	
 	@Test
 	public void testSumAggExpression() {
+		GNUPrologNamesContainer.populate();
 		QuestExpression questExpression1 = new QuestExpression(
 				new LongIDExpression("Sports", null),
 				new LongIDExpression("Sports.weight", null),
@@ -301,40 +317,43 @@ public class TVLTransformerExpressionToGNUPrologTest {
 		SumAggExpression sumAggExpression = new SumAggExpression(expressionList);
 		EqualsExpression equalsExpression = new EqualsExpression(new LongIDExpression("Car.weight", null), sumAggExpression);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(equalsExpression).toArithmeticForm();
-		assertEquals ("Car.weight #= ( Sports #==> Sports.weight, ( #\\ Sports ) #==> ( 0 ) ) + ( Family #==> Family.weight, ( #\\ Family ) #==> ( 0 ) )", gnuExpressionString);
+		assertEquals (
+				"Car.weight #= R1 + R2,\n" + 
+				"Sports #==> R1 #= Sports.weight, #\\ Sports #==> R1 #= 0,\n" +
+				"Family #==> R2 #= Family.weight, #\\ Family #==> R2 #= 0", gnuExpressionString);
 	}
 	
 	@Test
 	public void testMinusExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
-		RealExpression expression2 = new RealExpression("123.5");
+		IntExpression expression2 = new IntExpression("123");
 		MinusExpression minusExpression = new MinusExpression(expression1, expression2);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(minusExpression).toArithmeticForm();
-		assertEquals ("Car.hp - 123.5", gnuExpressionString);
+		assertEquals ("Car.hp - 123", gnuExpressionString);
 	}
 	
 	@Test
 	public void testMulAggExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
-		RealExpression expression2 = new RealExpression("123.5");
+		IntExpression expression2 = new IntExpression("123");
 		ExpressionList expressionList = new ExpressionList(expression1);
 		expressionList.getExpressions().add(expression2);
 		MulAggExpression mulAggExpression = new MulAggExpression(expressionList);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(mulAggExpression).toArithmeticForm();
-		assertEquals ("Car.hp * 123.5", gnuExpressionString);
+		assertEquals ("Car.hp * 123", gnuExpressionString);
 	}
 	
 	@Test
 	public void testOrAggExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
-		RealExpression expression2 = new RealExpression("123.5");
-		RealExpression expression3 = new RealExpression("678.5");
+		IntExpression expression2 = new IntExpression("123");
+		IntExpression expression3 = new IntExpression("678");
 		ExpressionList expressionList = new ExpressionList(expression1);
 		expressionList.getExpressions().add(expression2);
 		expressionList.getExpressions().add(expression3);
 		OrAggExpression orAggExpression = new OrAggExpression(expressionList);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(orAggExpression).toArithmeticForm();
-		assertEquals ("Car.hp #\\/ 123.5 #\\/ 678.5", gnuExpressionString);
+		assertEquals ("Car.hp #\\/ 123 #\\/ 678", gnuExpressionString);
 	}
 	
 	@Test
@@ -349,10 +368,10 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	@Test
 	public void testTimesExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
-		RealExpression expression2 = new RealExpression("100.0");
+		IntExpression expression2 = new IntExpression("100");
 		TimesExpression timesExpression = new TimesExpression(expression1, expression2);
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(timesExpression).toArithmeticForm();
-		assertEquals ("Car.hp * 100.0", gnuExpressionString);
+		assertEquals ("Car.hp * 100", gnuExpressionString);
 	}
 	
 	@Test

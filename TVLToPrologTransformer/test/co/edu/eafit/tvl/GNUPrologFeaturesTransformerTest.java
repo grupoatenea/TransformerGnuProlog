@@ -34,7 +34,7 @@ public class GNUPrologFeaturesTransformerTest {
 		
 		Map<Integer, String> featuresGNUProlog = new TreeMap<Integer, String>();
 		for (FeatureSymbol feature : features) {
-			GNUPrologFeatureTransformer featureTransformer = new GNUPrologFeatureTransformer(feature);
+			GNUPrologVariableTransformer featureTransformer = new GNUPrologFeatureTransformer(feature);
 			featuresGNUProlog.put(feature.getDIMACS_ID(), featureTransformer.getGNUPrologName());
 		}
 		StringBuilder sb = new StringBuilder();

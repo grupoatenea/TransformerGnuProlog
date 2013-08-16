@@ -1,7 +1,7 @@
 package co.edu.eafit.tvl.expression;
 
-import co.edu.eafit.tvl.transformation.GNUPrologNamesContainer;
 import be.ac.info.fundp.TVLParser.SyntaxTree.ExcludesExpression;
+import co.edu.eafit.tvl.transformation.GNUPrologNamesContainer;
 
 public class GNUPrologExcludesExpression implements GNUPrologExpression {
 

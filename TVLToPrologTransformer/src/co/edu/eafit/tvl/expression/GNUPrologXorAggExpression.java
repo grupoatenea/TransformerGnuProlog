@@ -23,7 +23,7 @@ public class GNUPrologXorAggExpression implements GNUPrologExpression {
 			list = GNUPrologExpressionTransformer.transform( new ParenthesesExpression(expressions.get(0))).toArithmeticForm();
 			int i = 1;
 			while ( i <= expressions.size()-1) {
-				list = list.concat(" #<=> " + GNUPrologExpressionTransformer.transform( new ParenthesesExpression(expressions.get(i))).toArithmeticForm());
+				list = list.concat(" ## " + GNUPrologExpressionTransformer.transform( new ParenthesesExpression(expressions.get(i))).toArithmeticForm());
 				i++;
 			}
 		}

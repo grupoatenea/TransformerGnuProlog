@@ -378,10 +378,15 @@ public class TVLTransformerExpressionToGNUPrologTest {
 	public void testXorAggExpression() {
 		LongIDExpression expression1 = new LongIDExpression("Car.hp", null);
 		LongIDExpression expression2 = new LongIDExpression("Car.color", null);
+		LongIDExpression expression3 = new LongIDExpression("Car.value", null);
+		
 		ExpressionList expresionList = new ExpressionList(expression1);
-		ExpressionList expresionListFinal = new ExpressionList(expression2, expresionList);
+		ExpressionList expresionList2 = new ExpressionList(expression2, expresionList);
+		ExpressionList expresionListFinal = new ExpressionList(expression3, expresionList2);
+		
 		XorAggExpression xorAggExpression = new XorAggExpression(expresionListFinal);
+		
 		String gnuExpressionString = GNUPrologExpressionTransformer.transform(xorAggExpression).toArithmeticForm();
-		assertEquals ("( Car.hp ) #<=> ( Car.color )", gnuExpressionString);
+		assertEquals ("( Car.hp ) ## ( Car.color ) ## ( Car.value )", gnuExpressionString);
 	}
 }
